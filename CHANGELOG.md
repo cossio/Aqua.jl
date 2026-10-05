@@ -20,11 +20,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The minimum supported julia version is increased to 1.6. ([#328])
+- Make `test_piracy` check modules recursively for type piracy. This may result in failures for downstream users. ([#377])
+
+## Version [v0.8.18] - 2026-09-18
+
+### Fixed
+
+- `test_persistent_tasks` no longer errors on a weak dependency that is also
+  listed in `[deps]` but not installed. ([#400])
+
+## Version [v0.8.17] - 2026-09-17
+
+### Changed
+
 - `test_persistent_tasks` now reports a precompilation failure as a precompilation
   error instead of misclassifying it as a persistent task. The default `tmax` is
   also raised to 30 seconds (still configurable) to reduce false positives when a
-  package without persistent tasks is merely slow to shut down. ([#315])
-- Make `test_piracy` check modules recursively for type piracy. This may result in failures for downstream users. ([#377])
+  package without persistent tasks is merely slow to shut down. ([#389])
+- `test_persistent_tasks` now uses the environment `package` is loaded from,
+  so `dev`ed and path-tracked dependencies are supported. ([#394])
 
 ## Version [v0.8.16] - 2026-06-05
 
@@ -316,6 +330,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.8.14]: https://github.com/JuliaTesting/Aqua.jl/releases/tag/v0.8.14
 [v0.8.15]: https://github.com/JuliaTesting/Aqua.jl/releases/tag/v0.8.15
 [v0.8.16]: https://github.com/JuliaTesting/Aqua.jl/releases/tag/v0.8.16
+[v0.8.17]: https://github.com/JuliaTesting/Aqua.jl/releases/tag/v0.8.17
+[v0.8.18]: https://github.com/JuliaTesting/Aqua.jl/releases/tag/v0.8.18
 [v1.0.0]: https://github.com/JuliaTesting/Aqua.jl/releases/tag/v1.0.0
 [#93]: https://github.com/JuliaTesting/Aqua.jl/issues/93
 [#103]: https://github.com/JuliaTesting/Aqua.jl/issues/103
@@ -367,7 +383,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#297]: https://github.com/JuliaTesting/Aqua.jl/issues/297
 [#309]: https://github.com/JuliaTesting/Aqua.jl/issues/309
 [#313]: https://github.com/JuliaTesting/Aqua.jl/issues/313
-[#315]: https://github.com/JuliaTesting/Aqua.jl/issues/315
 [#319]: https://github.com/JuliaTesting/Aqua.jl/issues/319
 [#322]: https://github.com/JuliaTesting/Aqua.jl/issues/322
 [#328]: https://github.com/JuliaTesting/Aqua.jl/issues/328
@@ -377,4 +392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#377]: https://github.com/JuliaTesting/Aqua.jl/issues/377
 [#379]: https://github.com/JuliaTesting/Aqua.jl/issues/379
 [#381]: https://github.com/JuliaTesting/Aqua.jl/issues/381
+[#389]: https://github.com/JuliaTesting/Aqua.jl/issues/389
 [#392]: https://github.com/JuliaTesting/Aqua.jl/issues/392
+[#394]: https://github.com/JuliaTesting/Aqua.jl/issues/394
+[#400]: https://github.com/JuliaTesting/Aqua.jl/issues/400

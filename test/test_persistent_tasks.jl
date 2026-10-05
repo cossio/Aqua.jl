@@ -27,6 +27,52 @@ end
         result = Aqua.find_persistent_tasks_deps(getid("UsesBoth"); tmax = 2)
         println("### Expected output END ###")
         @test result == ["PersistentTask"]
+
+        # `UsesTransientTask` depends on the unregistered `TransientTask`, which is
+        # only reachable through the stacked `LOAD_PATH`; the check must respect
+        # this environment.
+        @test !Aqua.has_persistent_tasks(getid("UsesTransientTask"))
+    end
+    filter!(str -> !occursin("PersistentTasks", str), LOAD_PATH)
+end
+
+@testset "dependencies tracked by path in the manifest" begin
+    if Base.VERSION >= v"1.10-"
+        # `WithDevDep` depends on the unregistered `TransientTask`, which is only
+        # reachable through the relative `path` entry in `WithDevDep/Manifest.toml`
+        # (like a `dev`ed dependency). Only `WithDevDep` itself is put on the
+        # `LOAD_PATH`.
+        @test !Aqua.has_persistent_tasks(getid("WithDevDep"))
+    end
+    filter!(str -> !occursin("PersistentTasks", str), LOAD_PATH)
+end
+
+@testset "weak dependency duplicated in [deps]" begin
+    # `WithWeakDep` lists `WeakDep` in both `[deps]` and `[weakdeps]`, the idiom
+    # for supporting Julia < 1.9. Issue #399.
+    getid("TransientTask")
+    id = getid("WithWeakDep")
+    pkgdir = joinpath(@__DIR__, "pkgs", "PersistentTasks", "WithWeakDep")
+
+    # `WeakDep` is not installed: it must be skipped, not errored on, and the
+    # manifest must not claim it as a dependency.
+    entries = Aqua.manifest_entries(pkgdir)
+    @test !haskey(entries, "WeakDep")
+    entry = only(entries["WithWeakDep"])
+    @test !haskey(entry["deps"], "WeakDep")
+    @test haskey(entry["weakdeps"], "WeakDep")
+    if Base.VERSION >= v"1.10-"
+        @test !Aqua.has_persistent_tasks(id)
+    end
+
+    # Once installed, the weak dependency is traversed so the extension stays
+    # loadable, but it still is not one of the entry's `deps`.
+    getid("WeakDep")
+    entries = Aqua.manifest_entries(pkgdir)
+    @test haskey(entries, "WeakDep")
+    @test !haskey(only(entries["WithWeakDep"])["deps"], "WeakDep")
+    if Base.VERSION >= v"1.10-"
+        @test !Aqua.has_persistent_tasks(id)
     end
     filter!(str -> !occursin("PersistentTasks", str), LOAD_PATH)
 end
